@@ -256,6 +256,8 @@ stages:
               - template: darwin/product-build-darwin.yml
           - ${{ if ne(variables['VSCODE_PUBLISH'], 'false') }}:
             - job: macOSSign
+              dependsOn:
+                - macOS
               timeoutInMinutes: 90
               variables:
                 VSCODE_ARCH: x64
@@ -271,6 +273,8 @@ stages:
               - template: darwin/product-build-darwin.yml
           - ${{ if ne(variables['VSCODE_PUBLISH'], 'false') }}:
             - job: macOSARM64Sign
+              dependsOn:
+                - macOSARM64
               timeoutInMinutes: 90
               variables:
                 VSCODE_ARCH: arm64
@@ -289,6 +293,8 @@ stages:
               - template: darwin/product-build-darwin.yml
           - ${{ if ne(variables['VSCODE_PUBLISH'], 'false') }}:
             - job: macOSUniversalSign
+              dependsOn:
+                - macOSUniversal
               timeoutInMinutes: 90
               variables:
                 VSCODE_ARCH: universal
