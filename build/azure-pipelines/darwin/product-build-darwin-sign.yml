@@ -3,6 +3,12 @@ steps:
     inputs:
       versionSpec: "12.18.3"
 
+  - task: AzureKeyVault@1
+    displayName: "Azure Key Vault: Get Secrets"
+    inputs:
+      azureSubscription: "vscode-builds-subscription"
+      KeyVaultName: vscode
+
   - download: current
     artifact: vscode-darwin-$(VSCODE_ARCH)
     displayName: Download $(VSCODE_ARCH) artifact
