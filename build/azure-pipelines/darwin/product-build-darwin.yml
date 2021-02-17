@@ -268,6 +268,19 @@ steps:
       searchFolder: "$(Build.ArtifactStagingDirectory)/test-results"
     condition: and(succeededOrFailed(), eq(variables['VSCODE_ARCH'], 'x64'), eq(variables['VSCODE_STEP_ON_IT'], 'false'))
 
+  - script: |
+      set -e
+      VSCODE_MIXIN_PASSWORD="$(github-distro-mixin-password)" \
+      AZURE_DOCUMENTDB_MASTERKEY="$(builds-docdb-key-readwrite)" \
+      AZURE_STORAGE_ACCESS_KEY="$(ticino-storage-key)" \
+      AZURE_STORAGE_ACCESS_KEY_2="$(vscode-storage-key)" \
+      node build/azure-pipelines/common/createAsset.js \
+        "darwin-$(VSCODE_ARCH)" \
+        archive \
+        "VSCode-darwin-$(VSCODE_ARCH).zip" \
+        ../VSCode-darwin-$(VSCODE_ARCH).zip
+    displayName: Publish Clients
+
   - publish: $(Agent.BuildDirectory)/VSCode-darwin-$(VSCODE_ARCH).zip
     artifact: vscode-darwin-$(VSCODE_ARCH)
     displayName: Publish client archive
