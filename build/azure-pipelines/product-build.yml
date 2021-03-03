@@ -11,7 +11,7 @@ parameters:
   - name: VSCODE_QUALITY
     displayName: Quality
     type: string
-    default: insider
+    default: exploration
     values:
       - exploration
       - insider

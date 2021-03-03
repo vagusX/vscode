@@ -167,6 +167,7 @@ export class SharedProcess extends Disposable implements ISharedProcess {
 				preload: FileAccess.asFileUri('vs/base/parts/sandbox/electron-browser/preload.js', require).fsPath,
 				v8CacheOptions: browserCodeLoadingCacheStrategy,
 				nodeIntegration: true,
+				contextIsolation: false,
 				enableWebSQL: false,
 				enableRemoteModule: false,
 				spellcheck: false,

@@ -290,8 +290,7 @@ export class ElectronWebviewBasedWebview extends BaseWebview<WebviewTag> impleme
 		const findOptions: FindInPageOptions = {
 			forward: options.forward,
 			findNext: false,
-			matchCase: options.matchCase,
-			medialCapitalAsWordStart: options.medialCapitalAsWordStart
+			matchCase: options.matchCase
 		};
 
 		this._findStarted = true;
