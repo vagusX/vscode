@@ -32,7 +32,7 @@ import { RenderLineNumbersType } from 'vs/editor/common/config/editorOptions';
 import { CommandsConverter } from 'vs/workbench/api/common/extHostCommands';
 import { ExtHostNotebookController } from 'vs/workbench/api/common/extHostNotebook';
 import * as notebooks from 'vs/workbench/contrib/notebook/common/notebookCommon';
-import { ISerializedTestResults, ITestItem, ITestMessage, ITestState, SerializedTestResultItem } from 'vs/workbench/contrib/testing/common/testCollection';
+import { ISerializedTestResults, ITestItem, ITestMessage, ITestState, SerializedTestResultItem, TestItemExpandable } from 'vs/workbench/contrib/testing/common/testCollection';
 
 export interface PositionLike {
 	line: number;
@@ -1643,6 +1643,17 @@ export namespace TestItem {
 		};
 	}
 
+	export function fromResultSnapshot(item: vscode.TestResultSnapshot): ITestItem {
+		return {
+			extId: item.id,
+			label: item.label,
+			location: item.location ? location.from(item.location) as any : undefined,
+			debuggable: false,
+			description: item.description,
+			runnable: true,
+		};
+	}
+
 	export function toPlainShallow(item: ITestItem): Omit<types.TestItem, 'children'> {
 		return {
 			id: item.extId,
@@ -1681,7 +1692,7 @@ export namespace TestResults {
 			items: [],
 		};
 
-		const queue: [parent: SerializedTestResultItem | null, children: Iterable<vscode.TestItemWithResults>][] = [
+		const queue: [parent: SerializedTestResultItem | null, children: Iterable<vscode.TestResultSnapshot>][] = [
 			[null, results.results],
 		];
 
@@ -1691,9 +1702,10 @@ export namespace TestResults {
 				const serializedItem: SerializedTestResultItem = {
 					children: item.children?.map(c => c.id) ?? [],
 					computedState: item.result.state,
-					item: TestItem.from(item),
+					item: TestItem.fromResultSnapshot(item),
 					state: TestState.from(item.result),
 					retired: undefined,
+					expand: TestItemExpandable.Expanded,
 					parent: parent?.item.extId ?? null,
 					providerId: '',
 					direct: !parent,
@@ -1709,7 +1721,7 @@ export namespace TestResults {
 		return serialized;
 	}
 
-	const convertTestResultItem = (item: SerializedTestResultItem, byInternalId: Map<string, SerializedTestResultItem>): vscode.TestItemWithResults => ({
+	const convertTestResultItem = (item: SerializedTestResultItem, byInternalId: Map<string, SerializedTestResultItem>): vscode.TestResultSnapshot => ({
 		...TestItem.toPlainShallow(item.item),
 		result: TestState.to(item.state),
 		children: item.children

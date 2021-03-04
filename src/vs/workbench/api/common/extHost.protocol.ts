@@ -1853,6 +1853,7 @@ export interface ExtHostTestingShape {
 	$lookupTest(test: TestIdWithProvider): Promise<InternalTestItem | undefined>;
 	$acceptDiff(resource: ExtHostTestingResource, uri: UriComponents, diff: TestsDiff): void;
 	$publishTestResults(results: ISerializedTestResults[]): void;
+	$expandTest(resource: ExtHostTestingResource, uri: UriComponents, testId: string, levels: number): void;
 }
 
 export interface MainThreadTestingShape {
