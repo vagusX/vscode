@@ -154,7 +154,7 @@ export interface ITerminalService {
 	 */
 	registerLinkProvider(linkProvider: ITerminalExternalLinkProvider): IDisposable;
 
-	selectDefaultShell(): Promise<void>;
+	selectDefaultShell(noQuickPick?: boolean): Promise<any>;
 
 	setContainers(panelContainer: HTMLElement, terminalContainer: HTMLElement): void;
 	manageWorkspaceShellPermissions(): void;

@@ -91,3 +91,78 @@ function getSystemShellWindowsSync(env: platform.IProcessEnvironment): string {
 	const powerShellPath = `${env['windir']}\\${is32ProcessOn64Windows ? 'Sysnative' : 'System32'}\\WindowsPowerShell\\v1.0\\powershell.exe`;
 	return isAtLeastWindows10 ? powerShellPath : processes.getWindowsShell(env);
 }
+
+// 'default': [
+// 	{
+// 		'shell': '/bin/bash',
+// 		'label': 'bash'
+// 	},
+// 	{
+// 		'shell': '/bin/zsh',
+// 		'label': 'zsh'
+// 	},
+// 	{
+// 		'shell': 'zsh',
+// 		'args': [
+// 			'-l'
+// 		],
+// 		'label': 'zsh login shell'
+// 	},
+// 	{
+// 		'shell': 'bash',
+// 		'args': [
+// 			'-l'
+// 		],
+// 		'label': 'bash login shell'
+// 	}
+// ]
+// },
+// 'terminal.integrated.shells.linux': {
+// 	description: localize('terminal.integrated.shells.linux', "The shell profiles to select from when creating a new terminal on linux."),
+// 		'type': 'array',
+// 			'default': [
+// 				{
+// 					'shell': '/bin/bash',
+// 					'label': 'bash'
+// 				},
+// 				{
+// 					'shell': '/bin/zsh',
+// 					'label': 'zsh'
+// 				},
+// 				{
+// 					'shell': 'zsh',
+// 					'args': [
+// 						'-l'
+// 					],
+// 					'label': 'zsh login shell'
+// 				},
+// 				{
+// 					'shell': 'bash',
+// 					'args': [
+// 						'-l'
+// 					],
+// 					'label': 'bash login shell'
+// 				}
+// 			]
+// },
+// 'terminal.integrated.shells.windows': {
+// 	description: localize('terminal.integrated.shells.windows', 'The shell profiles to select from when creating a new terminal on windows.'),
+// 		'type': 'array',
+// 			'default': [
+// 				{
+// 					'shell': 'C:\\Windows\\System32\\cmd.exe',
+// 					'label': 'cmd'
+// 				},
+// 				{
+// 					'shell': 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
+// 					'label': 'PowerShell'
+// 				},
+// 				{
+// 					'shell': 'C:\\Program Files\\Git\\bin\\bash.exe',
+// 					'label': 'Git bash'
+// 				},
+// 				{
+// 					'shell': 'C:\\Windows\\System32\\bash.exe',
+// 					'label': 'WSL Bash'
+// 				}
+// 			]

@@ -733,15 +733,21 @@ export class TerminalService implements ITerminalService {
 		});
 	}
 
-	public async selectDefaultShell(): Promise<void> {
+	public async selectDefaultShell(noQuickPick?: boolean): Promise<any> {
 		const shells = await this._detectShells();
 		const options: IPickOptions<IQuickPickItem> = {
 			placeHolder: nls.localize('terminal.integrated.chooseWindowsShell', "Select your preferred terminal shell, you can change this later in your settings")
 		};
 		const quickPickItems = shells.map((s): IQuickPickItem => {
-			return { label: s.label, description: s.path };
+			return { label: s.label, description: s.path + s.label === 'Cygwin' ? '[-l]' : '' };
 		});
-		const value = await this._quickInputService.pick(quickPickItems, options);
+		if (noQuickPick) {
+			return shells.map(s => ({ label: s.label, executable: s.path, args: s.args } as IShellLaunchConfig));
+		}
+		let value;
+		if (!noQuickPick) {
+			value = await this._quickInputService.pick(quickPickItems, options);
+		}
 		if (!value) {
 			return undefined;
 		}
@@ -749,7 +755,7 @@ export class TerminalService implements ITerminalService {
 		const env = await this._remoteAgentService.getEnvironment();
 		let platformKey: string;
 		if (env) {
-			platformKey = env.os === OperatingSystem.Windows ? 'windows' : (env.os === OperatingSystem.Macintosh ? 'osx' : 'linux');
+			platformKey = env?.os === OperatingSystem.Windows ? 'windows' : (env?.os === OperatingSystem.Macintosh ? 'osx' : 'linux');
 		} else {
 			platformKey = isWindows ? 'windows' : (isMacintosh ? 'osx' : 'linux');
 		}

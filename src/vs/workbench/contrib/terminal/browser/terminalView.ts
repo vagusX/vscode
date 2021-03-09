@@ -369,11 +369,11 @@ class SwitchTerminalActionViewItem extends SelectActionViewItem {
 	) {
 		super(null, action, getTerminalSelectOpenItems(_terminalService, _contributions), _terminalService.activeTabIndex, contextViewService, { ariaLabel: nls.localize('terminals', 'Open Terminals.'), optionsAsChildren: true });
 
-		this._register(_terminalService.onInstancesChanged(this._updateItems, this));
-		this._register(_terminalService.onActiveTabChanged(this._updateItems, this));
-		this._register(_terminalService.onInstanceTitleChanged(this._updateItems, this));
-		this._register(_terminalService.onTabDisposed(this._updateItems, this));
-		this._register(_terminalService.onDidChangeConnectionState(this._updateItems, this));
+		this._register(_terminalService.onInstancesChanged(async () => await this._updateItems(), this));
+		this._register(_terminalService.onActiveTabChanged(async () => await this._updateItems(), this));
+		this._register(_terminalService.onInstanceTitleChanged(async () => await this._updateItems(), this));
+		this._register(_terminalService.onTabDisposed(async () => this._updateItems(), this));
+		this._register(_terminalService.onDidChangeConnectionState(async () => await this._updateItems(), this));
 		this._register(attachSelectBoxStyler(this.selectBox, this._themeService));
 	}
 
@@ -385,8 +385,8 @@ class SwitchTerminalActionViewItem extends SelectActionViewItem {
 		}));
 	}
 
-	private _updateItems(): void {
-		const options = getTerminalSelectOpenItems(this._terminalService, this._contributions);
+	private async _updateItems(): Promise<void> {
+		const options = await getTerminalSelectOpenItemsAsync(this._terminalService, this._contributions);
 		// only update options if they've changed
 		if (!equals(Object.values(options), Object.values(this._lastOptions)) || this._lastActiveTab !== this._terminalService.activeTabIndex) {
 			this.setOptions(options, this._terminalService.activeTabIndex);
@@ -394,6 +394,40 @@ class SwitchTerminalActionViewItem extends SelectActionViewItem {
 			this._lastActiveTab = this._terminalService.activeTabIndex;
 		}
 	}
+}
+
+async function getTerminalSelectOpenItemsAsync(terminalService: ITerminalService, contributions: ITerminalContributionService): Promise<ISelectOptionItem[]> {
+	let items: ISelectOptionItem[];
+
+	if (terminalService.connectionState === TerminalConnectionState.Connected) {
+		items = terminalService.getTabLabels().map(label => {
+			return { text: label };
+		});
+	} else {
+		items = [{ text: nls.localize('terminalConnectingLabel', "Starting...") }];
+	}
+
+	for (const contributed of contributions.terminalTypes) {
+		items.push({ text: contributed.title });
+	}
+	// TODO filter out any invalid ones from profile? IE that aren't in default shells that get returned?
+	/// only include the good powershell
+
+	let terms = await terminalService.selectDefaultShell(true);
+	items.push({ text: switchTerminalActionViewItemSeparator, isDisabled: true });
+	const shells = terminalService.configHelper.config.profiles;
+	const shellsForPlatform = (platform.isWindows ? shells.windows : platform.isIOS ? shells.osx : shells.linux);
+	let labels;
+	if (shellsForPlatform && shellsForPlatform.length > 0) {
+		labels = shellsForPlatform.map(shell => ({ text: 'New ' + shell.label } as ISelectOptionItem));
+	} else {
+		labels = terms.map((shell: { label: string; }) => ({ text: 'New ' + shell.label } as ISelectOptionItem));
+	}
+	items.push(...labels);
+	items.push({ text: switchTerminalActionViewItemSeparator, isDisabled: true });
+	items.push({ text: selectDefaultShellTitle });
+	items.push({ text: configureTerminalSettingsTitle });
+	return items;
 }
 
 function getTerminalSelectOpenItems(terminalService: ITerminalService, contributions: ITerminalContributionService): ISelectOptionItem[] {
@@ -412,12 +446,8 @@ function getTerminalSelectOpenItems(terminalService: ITerminalService, contribut
 	for (const contributed of contributions.terminalTypes) {
 		items.push({ text: contributed.title });
 	}
+
 	items.push({ text: selectDefaultShellTitle });
 	items.push({ text: configureTerminalSettingsTitle });
-	items.push({ text: switchTerminalActionViewItemSeparator, isDisabled: true });
-	const shells = terminalService.configHelper.config.shells;
-	const shellsForPlatform = platform.isWindows ? shells.windows : platform.isIOS ? shells.osx : shells.linux;
-	const labels = shellsForPlatform.map(shell => ({ text: shell.label } as ISelectOptionItem));
-	items.push(...labels);
 	return items;
 }

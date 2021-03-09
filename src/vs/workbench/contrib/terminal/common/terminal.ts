@@ -95,7 +95,7 @@ export interface ITerminalConfiguration {
 		osx: string[];
 		windows: string[];
 	};
-	shells: {
+	profiles: {
 		linux: IShellConfig[];
 		osx: IShellConfig[];
 		windows: IShellConfig[];
@@ -234,6 +234,7 @@ export interface IBeforeProcessDataEvent {
 export interface IShellDefinition {
 	label: string;
 	path: string;
+	args?: {};
 }
 
 export interface IAvailableShellsRequest {

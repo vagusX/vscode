@@ -60,10 +60,10 @@ async function detectAvailableWindowsShells(): Promise<IShellDefinition[]> {
 			`${process.env['LocalAppData']}\\Programs\\Git\\bin\\bash.exe`,
 		],
 		// See #75945
-		// Cygwin: [
-		// 	`${process.env['HOMEDRIVE']}\\cygwin64\\bin\\bash.exe`,
-		// 	`${process.env['HOMEDRIVE']}\\cygwin\\bin\\bash.exe`
-		// ]
+		'Cygwin': [
+			`${process.env['HOMEDRIVE']}\\cygwin64\\bin\\bash.exe`,
+			`${process.env['HOMEDRIVE']}\\cygwin\\bin\\bash.exe`
+		]
 	};
 
 	// Add all of the different kinds of PowerShells

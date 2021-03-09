@@ -1283,9 +1283,10 @@ export function registerTerminalActions() {
 			const terminalService = accessor.get(ITerminalService);
 
 			if (terminalService.isProcessSupportRegistered) {
-				const shells = terminalService.configHelper.config.shells;
-				const shellsForPlatform = isWindows ? shells.windows : isIOS ? shells.osx : shells.linux;
-				const launchConfig = shellsForPlatform.find(shell => shell.label === item);
+				const profiles = terminalService.configHelper.config.profiles;
+				const shells = await terminalService.selectDefaultShell(true);
+				const shellsForPlatform = isWindows ? profiles.windows : isIOS ? profiles.osx : profiles.linux;
+				const launchConfig = shellsForPlatform ? shellsForPlatform.find(shell => shell.label === item) : shells.find((shell: { label: string; }) => shell.label === item);
 				const instance = terminalService.createTerminal(launchConfig);
 				if (!instance) {
 					return;
@@ -1489,11 +1490,13 @@ export function registerTerminalActions() {
 				terminalService.setActiveTabByIndex(Number(indexMatches[1]) - 1);
 				return terminalService.showPanel(true);
 			}
-			const shells = terminalService.configHelper.config.shells;
-			const shellsForPlatform = isWindows ? shells.windows : isIOS ? shells.osx : shells.linux;
-			const launchConfig = shellsForPlatform.find(shell => shell.label === item);
+			const shells = await terminalService.selectDefaultShell(true);
+			const userShells = terminalService.configHelper.config.profiles;
+			const shellsForPlatform = isWindows ? userShells.windows : isIOS ? userShells.osx : userShells.linux;
+			const key = item.substring(4);
+			const launchConfig = shellsForPlatform ? shellsForPlatform.find(shell => shell.label === key) : shells.find((shell: { label: string; }) => shell.label === key);
 			if (launchConfig) {
-				const instance = terminalService.createTerminal({ executable: launchConfig.shell, name: launchConfig.label, args: launchConfig?.args, cwd: launchConfig.cwd, env: launchConfig.env });
+				const instance = terminalService.createTerminal({ executable: launchConfig.executable, name: launchConfig.label, args: launchConfig?.args, cwd: launchConfig.cwd, env: launchConfig.env });
 				terminalService.setActiveInstance(instance);
 			} else {
 				const customType = terminalContributionService.terminalTypes.find(t => t.title === item);
